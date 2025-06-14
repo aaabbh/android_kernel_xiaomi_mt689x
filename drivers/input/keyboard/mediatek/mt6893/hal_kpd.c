@@ -187,6 +187,12 @@ void kpd_pmic_rstkey_hal(unsigned long pressed)
 
 void kpd_pmic_pwrkey_hal(unsigned long pressed)
 {
+#ifdef CONFIG_MTK_DEBUG_POWER_PANIC
+	if (pressed && mtk_debug_power_panic_enabled) {
+		pr_info("MTK DEBUG: Power key panic triggered in HAL!\n");
+		panic("A panic hot restart has been triggered by power key in HAL");
+	}
+#endif
 	input_report_key(kpd_input_dev, kpd_dts_data.kpd_sw_pwrkey, pressed);
 	input_sync(kpd_input_dev);
 	kpd_print(KPD_SAY "(%s) HW keycode =%d using PMIC\n",
