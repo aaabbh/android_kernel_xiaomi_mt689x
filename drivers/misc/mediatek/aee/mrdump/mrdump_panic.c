@@ -32,7 +32,6 @@
 #endif
 #include "mrdump_private.h"
 #include "mrdump_mini.h"
-#include "aee.h"
 #include <mt-plat/mtk_ram_console.h>
 
 /* for arm_smccc_smc */
