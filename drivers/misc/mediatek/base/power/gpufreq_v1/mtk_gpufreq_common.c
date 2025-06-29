@@ -22,7 +22,7 @@
  * ===============================================
  */
 #include <linux/slab.h>
-#include <mt-plat/aee.h>
+#include "aee.h"
 #include <aed.h>
 #include "mtk_gpufreq_common.h"
 
