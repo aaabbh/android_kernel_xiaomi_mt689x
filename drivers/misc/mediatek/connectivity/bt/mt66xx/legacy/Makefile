@@ -5,6 +5,8 @@ MTK_PLATFORM := $(subst ",,$(CONFIG_MTK_PLATFORM))
 ###############################################################################
 # Necessary Check
 
+AUTOCONF_H := $(srctree)/include/generated/autoconf.h
+
 ifeq ($(AUTOCONF_H),)
     $(error AUTOCONF_H is not defined)
 endif
