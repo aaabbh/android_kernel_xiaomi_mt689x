@@ -1234,11 +1234,19 @@ void CAMSYS_MET_Events_Trace(bool enter, u32 reg_module,
 			(int)(ISP_RD32(CAM_REG_RRZ_VERT_STEP(reg_module)) &
 			      0x3FFFF);
 
-		trace_ISP__Pass1_CAM_enter(
-			cam, imgo_en, rrzo_en, imgo_bpp, rrzo_bpp, imgo_xsize,
-			imgo_ysize, rrzo_xsize, rrzo_ysize, rrz_src_w,
-			rrz_src_h, rrz_dst_w, rrz_dst_h, rrz_hori_step,
-			rrz_vert_step, ctl_en, ctl_dma_en, ctl_en2);
+		// 拆分为多个 trace 事件
+		trace_ISP__Pass1_CAM_config(
+			cam, imgo_en, rrzo_en, imgo_bpp, rrzo_bpp);
+		
+		trace_ISP__Pass1_CAM_size(
+			cam, imgo_xsize, imgo_ysize, rrzo_xsize, rrzo_ysize);
+		
+		trace_ISP__Pass1_CAM_rrz(
+			cam, rrz_src_w, rrz_src_h, rrz_dst_w, rrz_dst_h,
+			rrz_hori_step, rrz_vert_step);
+		
+		trace_ISP__Pass1_CAM_ctl(
+			cam, ctl_en, ctl_dma_en, ctl_en2);
 	} else {
 		trace_ISP__Pass1_CAM_leave(cam, 0);
 	}
@@ -10965,14 +10973,20 @@ irqreturn_t ISP_Irq_CAM(enum ISP_IRQ_TYPE_ENUM irq_module)
 	fbc_ctrl2[1].Raw = ISP_RD32(CAM_REG_FBC_RRZO_CTL2(reg_module));
 
 #if defined(ISP_MET_READY)
-	if (trace_ISP__Pass1_CAM_enter_enabled()) {
-		/*MET:ISP EOF */
-		if (IrqStatus & HW_PASS1_DON_ST)
-			CAMSYS_MET_Events_Trace(0, reg_module, irq_module);
+    /* 检查是否有任意一个 MET trace 事件被启用 */
+    if (trace_ISP__Pass1_CAM_config_enabled() ||
+        trace_ISP__Pass1_CAM_size_enabled() ||
+        trace_ISP__Pass1_CAM_rrz_enabled() ||
+        trace_ISP__Pass1_CAM_ctl_enabled() ||
+        trace_ISP__Pass1_CAM_leave_enabled()) {
+        
+        /* MET:ISP EOF */
+        if (IrqStatus & HW_PASS1_DON_ST)
+            CAMSYS_MET_Events_Trace(0, reg_module, irq_module);
 
-		if (IrqStatus & SOF_INT_ST)
-			CAMSYS_MET_Events_Trace(1, reg_module, irq_module);
-	}
+        if (IrqStatus & SOF_INT_ST)
+            CAMSYS_MET_Events_Trace(1, reg_module, irq_module);
+    }
 #endif
 
 	/* sof , done order chech . */
