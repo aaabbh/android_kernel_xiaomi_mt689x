@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2015 MediaTek Inc.
- * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -136,6 +135,13 @@ enum ISP_IRQ_TYPE_ENUM {
 	ISP_IRQ_TYPE_INT_CAMSV_6_ST,
 	ISP_IRQ_TYPE_INT_CAMSV_7_ST,
 	ISP_IRQ_TYPE_AMOUNT
+};
+
+enum RAW_IDX {
+	CAM_A = 0,
+	CAM_B,
+	CAM_C,
+	CAM_MAX,
 };
 
 enum ISP_ST_ENUM {
@@ -407,6 +413,10 @@ struct ISP_DEV_ION_NODE_STRUCT {
 	unsigned int       devNode;
 	enum ISP_WRDMA_ENUM     dmaPort;
 	int                memID;
+	unsigned long long dma_pa;
+	unsigned long long va;
+	unsigned int size;
+	char username[64];
 };
 
 struct ISP_LARB_MMU_STRUCT {
@@ -596,6 +606,12 @@ struct ISP_RAW_INT_STATUS {
 	unsigned int ispInt5Err;
 };
 
+struct ISP_CQ0_NOTE_INFO {
+	unsigned int cq0_data[ISP_IRQ_TYPE_INT_CAMSV_0_ST][3];
+	unsigned int exposureNum;
+	unsigned int cqCnt;
+};
+
 /*******************************************************************************
  * pass1 real time buffer control use cq0c
  ******************************************************************************/
@@ -685,6 +701,10 @@ enum ISP_CMD_ENUM {
 	ISP_CMD_SET_SEC_DAPC_REG,
 	ISP_CMD_GET_CUR_HWP1DONE,
 	ISP_CMD_NOTE_CQTHR0_BASE,
+	ISP_CMD_ION_MAP_PA, /* AOSP ION: map physical address from fd */
+	ISP_CMD_ION_UNMAP_PA, /* AOSP ION: unmap physical address from fd */
+	ISP_CMD_ION_UNMAP_PA_BY_MODULE,
+	ISP_CMD_ION_GET_PA,
 	ISP_CMD_SET_VIR_CQCNT
 };
 
@@ -821,6 +841,18 @@ enum ISP_HALT_DMA_ENUM {
 #define ISP_ION_FREE_BY_HWMODULE                 \
 	_IOW(ISP_MAGIC, ISP_CMD_ION_FREE_BY_HWMODULE, unsigned int)
 
+#define ISP_ION_MAP_PA                      \
+	_IOWR(ISP_MAGIC, ISP_CMD_ION_MAP_PA, struct ISP_DEV_ION_NODE_STRUCT)
+
+#define ISP_ION_UNMAP_PA                      \
+	_IOW(ISP_MAGIC, ISP_CMD_ION_UNMAP_PA, struct ISP_DEV_ION_NODE_STRUCT)
+
+#define ISP_ION_UNMAP_PA_BY_HWMODULE             \
+	_IOW(ISP_MAGIC, ISP_CMD_ION_UNMAP_PA_BY_MODULE, struct ISP_DEV_ION_NODE_STRUCT)
+
+#define ISP_ION_GET_PA             \
+	_IOWR(ISP_MAGIC, ISP_CMD_ION_GET_PA, struct ISP_DEV_ION_NODE_STRUCT)
+
 #define ISP_CQ_SW_PATCH                          \
 	_IOW(ISP_MAGIC, ISP_CMD_CQ_SW_PATCH, struct ISP_MULTI_RAW_CONFIG)
 
@@ -877,6 +909,12 @@ enum ISP_HALT_DMA_ENUM {
 
 #define COMPAT_ISP_VF_LOG                        \
 	_IOW(ISP_MAGIC, ISP_CMD_VF_LOG, compat_uptr_t)
+
+#define COMPAT_ISP_NOTE_CQTHR0_BASE              \
+	_IOWR(ISP_MAGIC, ISP_CMD_NOTE_CQTHR0_BASE, compat_uptr_t)
+
+#define COMPAT_ISP_SET_VIR_CQCNT                 \
+	_IOWR(ISP_MAGIC, ISP_CMD_SET_VIR_CQCNT, compat_uptr_t)
 
 #define COMPAT_ISP_DUMP_BUFFER                   \
 	_IOWR(ISP_MAGIC,                         \
