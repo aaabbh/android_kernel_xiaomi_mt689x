@@ -111,3 +111,7 @@ __DEFINE_EVENT(template, call, PARAMS(proto), PARAMS(args), size)
 #undef __DEFINE_EVENT
 #undef FIRST
 #endif /* CONFIG_BPF_EVENTS */
+
+// 添加对 19 个参数的支持
+#define __CAST19(...) __CAST_TO_U64(__VA_ARGS__)
+#define bpf_trace_run19(prog, args...) bpf_trace_run(prog, __CAST19(args))
