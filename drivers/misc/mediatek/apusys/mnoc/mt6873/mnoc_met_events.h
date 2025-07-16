@@ -36,14 +36,14 @@
 #include <linux/tracepoint.h>
 #include "mnoc_hw.h"
 TRACE_EVENT(mnoc_pmu_polling,
-	TP_PROTO(u32 c[NR_MNOC_PMU_CNTR]),
-	TP_ARGS(c),
-	TP_STRUCT__entry(
-		__array(u32, c, NR_MNOC_PMU_CNTR)
-		),
-	TP_fast_assign(
-		memcpy(__entry->c, c, NR_MNOC_PMU_CNTR * sizeof(u32));
-	),
+    TP_PROTO(u32 *c, int size),
+    TP_ARGS(c, size),
+    TP_STRUCT__entry(
+         __dynamic_array(u32, c, size)
+         ),
+         TP_fast_assign(
+         memcpy(__get_dynamic_array(c), c, size * sizeof(u32));
+    ),
 	TP_printk(MNOC_PMU_POLL_STR1 MNOC_PMU_POLL_STR2 MNOC_PMU_POLL_STR3
 		MNOC_PMU_POLL_STR4 MNOC_PMU_POLL_STR5 MNOC_PMU_POLL_STR6
 		MNOC_PMU_POLL_STR7 MNOC_PMU_POLL_STR8 MNOC_PMU_POLL_STR9
